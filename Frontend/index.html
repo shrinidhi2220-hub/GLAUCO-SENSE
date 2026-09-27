@@ -1,0 +1,1867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="description" content="GLAUCO-SENSE - IoT Physiological Screening Research Prototype">
+<title>GLAUCO-SENSE | Research Prototype</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app">
+
+<header class="top-header">
+<div class="brand-area">
+<div class="brand-logo">GLAUCO<span>-SENSE</span></div>
+<div class="brand-subtitle">IoT Physiological Screening Research Prototype</div>
+</div>
+<div class="header-status">
+<span class="status-dot"></span>
+<span>SIMULATION MODE</span>
+</div>
+</header>
+
+<button id="mobileMenuButton" class="mobile-menu-button" type="button">☰ MENU</button>
+
+<div class="app-layout">
+
+<aside id="sidebar" class="sidebar">
+<div class="sidebar-title">SYSTEM MODULES</div>
+
+<button class="nav-button active" data-section="overview" type="button">
+<span>🏠</span><span>Overview</span>
+</button>
+
+<button class="nav-button" data-section="patient" type="button">
+<span>👤</span><span>Virtual Patient</span>
+</button>
+
+<button class="nav-button" data-section="iot" type="button">
+<span>📟</span><span>IoT Kit</span>
+</button>
+
+<button class="nav-button" data-section="monitor" type="button">
+<span>📈</span><span>Live Monitor</span>
+</button>
+
+<button class="nav-button" data-section="signal" type="button">
+<span>〰️</span><span>Signal Processing</span>
+</button>
+
+<button class="nav-button" data-section="clinical" type="button">
+<span>👁️</span><span>Clinical Reference</span>
+</button>
+
+<button class="nav-button" data-section="features" type="button">
+<span>🧮</span><span>Feature Extraction</span>
+</button>
+
+<button class="nav-button" data-section="model" type="button">
+<span>🤖</span><span>Research Model</span>
+</button>
+
+<button class="nav-button" data-section="result" type="button">
+<span>🎯</span><span>Screening Result</span>
+</button>
+
+<button class="nav-button" data-section="whatif" type="button">
+<span>🧪</span><span>What-If Lab</span>
+</button>
+
+<button class="nav-button" data-section="architecture" type="button">
+<span>🔗</span><span>Architecture</span>
+</button>
+
+<button class="nav-button" data-section="hardware" type="button">
+<span>🔧</span><span>Hardware Blueprint</span>
+</button>
+
+<button class="nav-button" data-section="research" type="button">
+<span>📚</span><span>Research Context</span>
+</button>
+
+<div class="sidebar-divider"></div>
+
+<button id="runDemoButton" class="demo-button" type="button">
+▶ RUN COMPLETE DEMO
+</button>
+</aside>
+
+<main class="main-content">
+
+<!-- OVERVIEW -->
+<section id="overview" class="page-section active-section">
+
+<div class="hero-card">
+<div class="hero-badge">STAGE-0 DIGITAL PROTOTYPE</div>
+<h1>GLAUCO-<span>SENSE</span></h1>
+<h2>IoT Physiological Screening Research Platform</h2>
+<p>
+A research prototype exploring whether low-cost peripheral physiological
+signals can provide useful information for glaucoma-related screening support.
+</p>
+
+<div class="pipeline">
+
+<div class="pipeline-node">
+👤
+<strong>Participant</strong>
+</div>
+
+<div class="pipeline-arrow">→</div>
+
+<div class="pipeline-node">
+🫀
+<strong>PPG + BP</strong>
+</div>
+
+<div class="pipeline-arrow">→</div>
+
+<div class="pipeline-node">
+📟
+<strong>ESP32</strong>
+</div>
+
+<div class="pipeline-arrow">→</div>
+
+<div class="pipeline-node">
+📊
+<strong>Processing</strong>
+</div>
+
+<div class="pipeline-arrow">→</div>
+
+<div class="pipeline-node">
+🧮
+<strong>Features</strong>
+</div>
+
+<div class="pipeline-arrow">→</div>
+
+<div class="pipeline-node">
+👁️
+<strong>Clinical Reference</strong>
+</div>
+
+<div class="pipeline-arrow">→</div>
+
+<div class="pipeline-node">
+🤖
+<strong>Research Model</strong>
+</div>
+
+</div>
+</div>
+
+<div class="warning-box">
+<strong>Research Prototype Notice</strong>
+<p>
+This system is a simulation for research and demonstration purposes.
+It does not diagnose glaucoma and simulated outputs must not be
+interpreted as medical results.
+</p>
+</div>
+
+<div class="section-grid three-columns">
+
+<div class="metric-card">
+<div class="metric-icon">🩺</div>
+<div class="metric-label">PRIMARY PHYSIOLOGICAL SIGNAL</div>
+<div class="metric-value">BP</div>
+<div class="metric-description">SBP / DBP / MAP</div>
+</div>
+
+<div class="metric-card">
+<div class="metric-icon">🫀</div>
+<div class="metric-label">OPTICAL SIGNAL</div>
+<div class="metric-value">PPG</div>
+<div class="metric-description">Peripheral pulse waveform</div>
+</div>
+
+<div class="metric-card">
+<div class="metric-icon">👁️</div>
+<div class="metric-label">CLINICAL REFERENCE</div>
+<div class="metric-value green-text">IOP</div>
+<div class="metric-description">Obtained through clinical assessment</div>
+</div>
+
+</div>
+
+<div class="content-card">
+<div class="card-header">🧠 Research Hypothesis</div>
+<p>
+Can non-invasive peripheral physiological measurements, especially
+blood-pressure-related parameters and PPG-derived features, provide
+incremental information that may help identify people who should
+receive formal ophthalmic evaluation?
+</p>
+</div>
+
+<div class="content-card">
+<div class="card-header">🔬 Core Research Flow</div>
+
+<div class="flow-list">
+
+<div class="flow-item">
+<span class="flow-number">01</span>
+Define the physiological research question
+</div>
+
+<div class="flow-item">
+<span class="flow-number">02</span>
+Acquire peripheral physiological signals
+</div>
+
+<div class="flow-item">
+<span class="flow-number">03</span>
+Process and clean signals
+</div>
+
+<div class="flow-item">
+<span class="flow-number">04</span>
+Extract numerical features
+</div>
+
+<div class="flow-item">
+<span class="flow-number">05</span>
+Compare against clinical reference data
+</div>
+
+<div class="flow-item">
+<span class="flow-number">06</span>
+Investigate statistical / ML relationships
+</div>
+
+</div>
+</div>
+
+</section>
+
+
+<!-- VIRTUAL PATIENT -->
+<section id="patient" class="page-section">
+
+<div class="page-heading">
+<div>
+<div class="page-eyebrow">MODULE 01</div>
+<h1>Virtual Patient</h1>
+<p>
+Synthetic participant profiles for demonstrating the complete research pipeline.
+</p>
+</div>
+</div>
+
+<div class="patient-selector">
+
+<button
+class="patient-select-button active"
+data-patient="reference"
+type="button">
+<strong>Reference Profile</strong>
+<small>Synthetic reference pattern</small>
+</button>
+
+<button
+class="patient-select-button"
+data-patient="elevated"
+type="button">
+<strong>Elevated-Pattern Simulation</strong>
+<small>Synthetic elevated pattern</small>
+</button>
+
+</div>
+
+<div class="content-card">
+
+<div class="patient-profile">
+
+<div class="patient-avatar">👤</div>
+
+<div class="patient-information">
+
+<div class="badge">SYNTHETIC PARTICIPANT</div>
+
+<h2 id="patientId">SUBJ-SIM-1042</h2>
+
+<p id="patientDescription">
+Synthetic reference physiological profile.
+</p>
+
+<div class="section-grid three-columns">
+
+<div class="metric-card compact">
+<div class="metric-label">AGE</div>
+<div id="patientAge" class="metric-value">52</div>
+</div>
+
+<div class="metric-card compact">
+<div class="metric-label">SEX</div>
+<div id="patientSex" class="metric-value">F</div>
+</div>
+
+<div class="metric-card compact">
+<div class="metric-label">SIGNAL QUALITY</div>
+<div id="patientSQI" class="metric-value green-text">98%</div>
+</div>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="section-grid three-columns">
+
+<div class="metric-card">
+<div class="metric-label">SYSTOLIC BP</div>
+<div id="patientSBP" class="metric-value">118</div>
+<div class="metric-unit">mmHg</div>
+</div>
+
+<div class="metric-card">
+<div class="metric-label">DIASTOLIC BP</div>
+<div id="patientDBP" class="metric-value">76</div>
+<div class="metric-unit">mmHg</div>
+</div>
+
+<div class="metric-card">
+<div class="metric-label">HEART RATE</div>
+<div id="patientHR" class="metric-value">72</div>
+<div class="metric-unit">bpm</div>
+</div>
+
+</div>
+
+<div class="content-card">
+
+<div class="card-header">📋 Physiological Summary</div>
+
+<table class="data-table">
+
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Value</th>
+<th>Unit</th>
+</tr>
+</thead>
+
+<tbody>
+
+<tr>
+<td>Systolic BP</td>
+<td id="tableSBP">118</td>
+<td>mmHg</td>
+</tr>
+
+<tr>
+<td>Diastolic BP</td>
+<td id="tableDBP">76</td>
+<td>mmHg</td>
+</tr>
+
+<tr>
+<td>Heart Rate</td>
+<td id="tableHR">72</td>
+<td>bpm</td>
+</tr>
+
+<tr>
+<td>Signal Quality</td>
+<td id="tableSQI">98</td>
+<td>%</td>
+</tr>
+
+</tbody>
+</table>
+</div>
+
+</section>
+
+
+<!-- IoT KIT -->
+<section id="iot" class="page-section">
+
+<div class="page-heading">
+<div>
+<div class="page-eyebrow">MODULE 02</div>
+<h1>IoT Kit</h1>
+<p>
+Conceptual low-cost physiological sensing architecture.
+</p>
+</div>
+</div>
+
+<div class="warning-box">
+
+<strong>Prototype Hardware Notice</strong>
+
+<p>
+The BP interface shown here represents a validated blood-pressure
+measurement source. MAX30102 is used as a PPG sensor and does not
+directly measure BP.
+</p>
+
+</div>
+
+<div class="iot-device">
+
+<div class="esp32-board">
+
+<div class="board-title">ESP32</div>
+<div class="board-chip">ESP32</div>
+<div class="board-status">● Controller</div>
+
+</div>
+
+<div class="device-component">
+🫀
+<strong>MAX30102</strong>
+<small>PPG sensor</small>
+</div>
+
+<div class="device-component">
+🩺
+<strong>BP Interface</strong>
+<small>Validated BP source</small>
+</div>
+
+<div class="device-component">
+📟
+<strong>OLED</strong>
+<small>Local display</small>
+</div>
+
+<div class="device-component">
+🔋
+<strong>Battery</strong>
+<small>Portable power</small>
+</div>
+
+<div class="device-component">
+📡
+<strong>Wi-Fi / BLE</strong>
+<small>Data transfer</small>
+</div>
+
+</div>
+
+<div class="content-card">
+
+<div class="card-header">🔌 Conceptual Sensor Activation</div>
+
+<p>
+Activate the simulated sensor node to begin the demonstration data stream.
+</p>
+
+<button
+id="activateSensorButton"
+class="primary-button"
+type="button">
+ACTIVATE SENSOR NODE
+</button>
+
+</div>
+
+<div class="section-grid three-columns">
+
+<div class="metric-card">
+<div class="metric-label">PPG SENSOR</div>
+<div class="metric-value">MAX30102</div>
+<div class="metric-description">Optical pulse waveform</div>
+</div>
+
+<div class="metric-card">
+<div class="metric-label">CONTROLLER</div>
+<div class="metric-value">ESP32</div>
+<div class="metric-description">Edge processing and communication</div>
+</div>
+
+<div class="metric-card">
+<div class="metric-label">DATA LINK</div>
+<div class="metric-value">Wi-Fi / BLE</div>
+<div class="metric-description">Wireless research data transfer</div>
+</div>
+
+</div>
+
+</section>
+
+
+<!-- LIVE MONITOR -->
+<section id="monitor" class="page-section">
+
+<div class="page-heading">
+<div>
+<div class="page-eyebrow">MODULE 03</div>
+<h1>Live Monitor</h1>
+<p>Simulated real-time physiological signal stream.</p>
+</div>
+</div>
+
+<div class="section-grid three-columns">
+
+<div class="metric-card">
+<div class="metric-label">SBP</div>
+<div id="liveSBP" class="metric-value">118</div>
+<div class="metric-unit">mmHg</div>
+</div>
+
+<div class="metric-card">
+<div class="metric-label">DBP</div>
+<div id="liveDBP" class="metric-value">76</div>
+<div class="metric-unit">mmHg</div>
+</div>
+
+<div class="metric-card">
+<div class="metric-label">HEART RATE</div>
+<div id="liveHR" class="metric-value">72</div>
+<div class="metric-unit">bpm</div>
+</div>
+
+</div>
+
+<div class="content-card">
+
+<div class="card-header">📈 Simulated PPG Waveform</div>
+
+<div class="chart-container">
+<canvas id="ppgCanvas"></canvas>
+</div>
+
+</div>
+
+<div class="monitor-controls">
+
+<button
+id="startPPGButton"
+class="primary-button"
+type="button">
+▶ START
+</button>
+
+<button
+id="pausePPGButton"
+class="secondary-button"
+type="button">
+⏸ PAUSE
+</button>
+
+<button
+id="resetPPGButton"
+class="danger-button"
+type="button">
+↻ RESET
+</button>
+
+</div>
+
+<div class="content-card">
+
+<div class="card-header">📡 Acquisition Status</div>
+
+<p>
+Packets received:
+<strong id="packetCount">0</strong>
+</p>
+
+<div class="progress-bar">
+<div
+id="measurementProgress"
+class="progress-bar-fill"
+style="width:0%;">
+</div>
+</div>
+
+</div>
+
+</section>
+
+
+<!-- SIGNAL PROCESSING -->
+<section id="signal" class="page-section">
+
+<div class="page-heading">
+<div>
+<div class="page-eyebrow">MODULE 04</div>
+<h1>Signal Processing</h1>
+<p>
+Transforming the raw PPG waveform into a cleaner signal suitable
+for feature extraction.
+</p>
+</div>
+</div>
+
+<div class="content-card">
+
+<div class="processing-list">
+
+<div class="processing-stage">
+<span>01</span>
+Raw PPG acquisition
+</div>
+
+<div class="processing-stage">
+<span>02</span>
+Baseline correction
+</div>
+
+<div class="processing-stage">
+<span>03</span>
+Noise handling
+</div>
+
+<div class="processing-stage">
+<span>04</span>
+Band-pass filtering
+</div>
+
+<div class="processing-stage">
+<span>05</span>
+Peak detection
+</div>
+
+<div class="processing-stage">
+<span>06</span>
+Clean waveform generation
+</div>
+
+</div>
+
+<button
+id="processSignalButton"
+class="primary-button"
+type="button">
+PROCESS SIGNAL
+</button>
+
+</div>
+
+<div class="section-grid two-columns">
+
+<div class="content-card">
+
+<div class="card-header">Raw Signal</div>
+
+<p>
+Contains pulse waveform information together with motion,
+baseline and sensor noise.
+</p>
+
+</div>
+
+<div class="content-card">
+
+<div class="card-header">Processed Signal</div>
+
+<p>
+Cleaner waveform used for exploratory physiological feature extraction.
+</p>
+
+</div>
+
+</div>
+
+</section>
+<!-- CLINICAL REFERENCE -->
+<section id="clinical" class="page-section">
+
+<div class="page-heading">
+<div>
+<div class="page-eyebrow">MODULE 05</div>
+<h1>Clinical Reference</h1>
+<p>
+Clinical measurements used to evaluate glaucoma-related structural,
+functional and pressure-related findings.
+</p>
+</div>
+</div>
+
+<div class="warning-box">
+<strong>Clinical Context</strong>
+<p>
+These measurements are reference variables for research comparison.
+They are not replaced by the low-cost IoT sensors in this prototype.
+</p>
+</div>
+
+<div class="section-grid two-columns">
+
+<div class="content-card">
+<div class="card-header">👁️ Intraocular Pressure</div>
+<p>
+IOP is measured using clinical ophthalmic instruments. It is an important
+variable in glaucoma assessment but should not be interpreted alone.
+</p>
+
+<div class="formula-box">
+<strong>IOP</strong>
+<br>
+Clinical ophthalmic measurement
+</div>
+</div>
+
+<div class="content-card">
+<div class="card-header">🔬 Optic Nerve Assessment</div>
+<p>
+Clinical examination evaluates the optic nerve head for structural
+features associated with glaucomatous damage.
+</p>
+
+<div class="formula-box">
+<strong>Example reference feature</strong>
+<br>
+Vertical cup-to-disc ratio
+</div>
+</div>
+
+<div class="content-card">
+<div class="card-header">📷 OCT / OCTA</div>
+<p>
+OCT can provide structural information, while OCTA can provide
+information about retinal and optic nerve head microvasculature.
+</p>
+</div>
+
+<div class="content-card">
+<div class="card-header">👀 Visual Field</div>
+<p>
+Perimetry evaluates functional changes in the visual field and is an
+important component of clinical glaucoma assessment.
+</p>
+</div>
+
+</div>
+
+<div class="content-card">
+
+<div class="card-header">📋 Simulated Clinical Reference</div>
+
+<table class="data-table">
+
+<thead>
+<tr>
+<th>Clinical Variable</th>
+<th>Reference Value</th>
+<th>Source</th>
+</tr>
+</thead>
+
+<tbody>
+
+<tr>
+<td>Right Eye IOP</td>
+<td id="clinicalIOPR">15</td>
+<td>Simulated clinical reference</td>
+</tr>
+
+<tr>
+<td>Left Eye IOP</td>
+<td id="clinicalIOPL">16</td>
+<td>Simulated clinical reference</td>
+</tr>
+
+<tr>
+<td>Vertical C/D Ratio</td>
+<td id="clinicalVCDR">0.35</td>
+<td>Simulated clinical reference</td>
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+</section>
+
+
+<!-- FEATURE EXTRACTION -->
+<section id="features" class="page-section">
+
+<div class="page-heading">
+<div>
+<div class="page-eyebrow">MODULE 06</div>
+<h1>Feature Extraction</h1>
+<p>
+Convert physiological measurements into numerical variables that can
+be investigated statistically or with machine-learning models.
+</p>
+</div>
+</div>
+
+<div class="content-card">
+
+<div class="card-header">🧮 Physiological Feature Vector</div>
+
+<div class="section-grid three-columns">
+
+<div class="metric-card">
+<div class="metric-label">SBP</div>
+<div id="featureSBP" class="metric-value">118</div>
+<div class="metric-unit">mmHg</div>
+</div>
+
+<div class="metric-card">
+<div class="metric-label">DBP</div>
+<div id="featureDBP" class="metric-value">76</div>
+<div class="metric-unit">mmHg</div>
+</div>
+
+<div class="metric-card">
+<div class="metric-label">MAP</div>
+<div id="featureMAP" class="metric-value">90.0</div>
+<div class="metric-unit">mmHg</div>
+</div>
+
+<div class="metric-card">
+<div class="metric-label">HEART RATE</div>
+<div id="featureHR" class="metric-value">72</div>
+<div class="metric-unit">bpm</div>
+</div>
+
+<div class="metric-card">
+<div class="metric-label">MOPP</div>
+<div id="featureMOPP" class="metric-value">45.0</div>
+<div class="metric-unit">mmHg</div>
+</div>
+
+<div class="metric-card">
+<div class="metric-label">DOPP</div>
+<div id="featureDOPP" class="metric-value">61.0</div>
+<div class="metric-unit">mmHg</div>
+</div>
+
+</div>
+
+</div>
+
+<div class="section-grid two-columns">
+
+<div class="content-card">
+
+<div class="card-header">📊 Blood Pressure Features</div>
+
+<ul class="research-list">
+
+<li>SBP — systolic blood pressure</li>
+<li>DBP — diastolic blood pressure</li>
+<li>MAP — mean arterial pressure</li>
+<li>Repeated BP measurements</li>
+<li>BP variability</li>
+<li>Day/night BP pattern</li>
+
+</ul>
+
+</div>
+
+<div class="content-card">
+
+<div class="card-header">🫀 PPG Features</div>
+
+<ul class="research-list">
+
+<li>Pulse waveform morphology</li>
+<li>Heart rate</li>
+<li>Pulse-to-pulse intervals</li>
+<li>Signal quality</li>
+<li>Exploratory waveform features</li>
+<li>Optional HRV-related features</li>
+
+</ul>
+
+</div>
+
+</div>
+
+<div class="content-card">
+
+<div class="card-header">👁️ Derived Ocular Perfusion Variables</div>
+
+<p>
+When IOP is available from clinical reference data, blood-pressure-derived
+variables can be combined with IOP to calculate simplified ocular
+perfusion pressure estimates for research exploration.
+</p>
+
+<div class="formula-box">
+
+<strong>MAP ≈ DBP + (SBP − DBP) / 3</strong>
+<br><br>
+<strong>MOPP ≈ (2 / 3) × MAP − IOP</strong>
+<br><br>
+<strong>DOPP = DBP − IOP</strong>
+
+</div>
+
+<p class="small-note">
+These formulas are simplified research representations and should not
+be treated as diagnostic thresholds.
+</p>
+
+</div>
+
+</section>
+
+
+<!-- RESEARCH MODEL -->
+<section id="model" class="page-section">
+
+<div class="page-heading">
+<div>
+<div class="page-eyebrow">MODULE 07</div>
+<h1>Research Model</h1>
+<p>
+Illustrative machine-learning workflow for investigating relationships
+between physiological features and clinical reference outcomes.
+</p>
+</div>
+</div>
+
+<div class="warning-box">
+
+<strong>Important Model Notice</strong>
+
+<p>
+This prototype does not contain a clinically trained ML model.
+Performance metrics are intentionally not fabricated. A real model
+would require an appropriate dataset, preprocessing pipeline,
+validation strategy and clinical governance.
+</p>
+
+</div>
+
+<div class="section-grid three-columns">
+
+<div class="content-card">
+<div class="card-header">Logistic Regression</div>
+<p>
+Useful as an interpretable baseline for binary research outcomes.
+</p>
+</div>
+
+<div class="content-card">
+<div class="card-header">Random Forest</div>
+<p>
+Can investigate nonlinear relationships between multiple physiological
+features.
+</p>
+</div>
+
+<div class="content-card">
+<div class="card-header">SVM / XGBoost</div>
+<p>
+Possible future models for comparative experimentation after suitable
+training data are available.
+</p>
+</div>
+
+</div>
+
+<div class="content-card">
+
+<div class="card-header">🤖 Model Configuration</div>
+
+<label for="modelSelect">Select research model:</label>
+
+<select id="modelSelect" class="form-control">
+
+<option value="logistic">
+Logistic Regression — Baseline
+</option>
+
+<option value="randomforest">
+Random Forest — Exploratory
+</option>
+
+<option value="svm">
+SVM — Exploratory
+</option>
+
+<option value="xgboost">
+XGBoost — Exploratory
+</option>
+
+</select>
+
+</div>
+
+<div class="content-card">
+
+<div class="card-header">📥 Example Model Input</div>
+
+<div class="formula-box">
+
+SBP + DBP + MAP + HR + PPG Features
+<br>
++
+<br>
+Clinical Reference Variables
+<br>
+↓
+<br>
+Feature Vector
+<br>
+↓
+<br>
+Statistical / ML Analysis
+<br>
+↓
+<br>
+Screening-Support Signal
+
+</div>
+
+</div>
+
+<div class="info-box">
+
+<strong>Future Research Requirement</strong>
+
+<p>
+A proper study would require de-identified participant data,
+predefined inclusion/exclusion criteria, train-validation-test
+separation, appropriate statistical analysis, external validation
+where possible, and clinical/ethical oversight.
+</p>
+
+</div>
+
+</section>
+
+
+<!-- SCREENING RESULT -->
+<section id="result" class="page-section">
+
+<div class="page-heading">
+<div>
+<div class="page-eyebrow">MODULE 08</div>
+<h1>Screening Result</h1>
+<p>
+Illustrative output generated from the current simulated physiological
+profile.
+</p>
+</div>
+</div>
+
+<div class="warning-box">
+
+<strong>Simulation Only</strong>
+
+<p>
+This output is a demonstration of the interface. It is not a glaucoma
+diagnosis, medical prediction, or clinically validated risk score.
+</p>
+
+</div>
+
+<div class="result-card">
+
+<div class="result-title" id="resultTitle">
+LOWER SCREENING CONCERN
+</div>
+
+<p id="resultDescription">
+The current simulated physiological pattern does not produce a strong
+screening-support signal in this demonstration.
+</p>
+
+</div>
+
+<div class="section-grid three-columns">
+
+<div class="metric-card">
+
+<div class="metric-label">BLOOD PRESSURE</div>
+
+<div id="resultBP" class="metric-value">
+118 / 76
+</div>
+
+<div class="metric-unit">
+mmHg
+</div>
+
+</div>
+
+<div class="metric-card">
+
+<div class="metric-label">REFERENCE IOP</div>
+
+<div id="resultIOP" class="metric-value">
+15
+</div>
+
+<div class="metric-unit">
+mmHg
+</div>
+
+</div>
+
+<div class="metric-card">
+
+<div class="metric-label">DEMO SCORE</div>
+
+<div id="resultScore" class="metric-value">
+24
+</div>
+
+<div class="metric-unit">
+simulation units
+</div>
+
+</div>
+
+</div>
+
+<div class="content-card">
+
+<div class="card-header">➡️ Appropriate Next Step</div>
+
+<p>
+If this were a real screening workflow, an elevated screening-support
+signal would indicate the need for formal clinical evaluation rather
+than provide a diagnosis.
+</p>
+
+</div>
+
+</section>
+
+
+<!-- WHAT-IF LAB -->
+<section id="whatif" class="page-section">
+
+<div class="page-heading">
+<div>
+<div class="page-eyebrow">MODULE 09</div>
+<h1>What-If Lab</h1>
+<p>
+Interactively explore how changes in physiological variables alter
+derived research quantities in this simulation.
+</p>
+</div>
+</div>
+
+<div class="warning-box">
+
+<strong>Educational Simulation</strong>
+
+<p>
+The gauge below is a transparent demonstration heuristic. It is not
+a trained clinical risk model and must not be used for medical decisions.
+</p>
+
+</div>
+
+<div class="section-grid two-columns">
+
+<div class="content-card">
+
+<div class="card-header">🩺 Blood Pressure</div>
+
+<div class="slider-control">
+
+<label for="whatIfSBP">
+SBP:
+<strong id="whatIfSBPValue">118</strong> mmHg
+</label>
+
+<input
+id="whatIfSBP"
+class="range-input"
+type="range"
+min="90"
+max="180"
+value="118">
+
+</div>
+
+<div class="slider-control">
+
+<label for="whatIfDBP">
+DBP:
+<strong id="whatIfDBPValue">76</strong> mmHg
+</label>
+
+<input
+id="whatIfDBP"
+class="range-input"
+type="range"
+min="50"
+max="120"
+value="76">
+
+</div>
+
+<div class="slider-control">
+
+<label for="whatIfIOP">
+IOP:
+<strong id="whatIfIOPValue">15</strong> mmHg
+</label>
+
+<input
+id="whatIfIOP"
+class="range-input"
+type="range"
+min="8"
+max="35"
+value="15">
+
+</div>
+
+</div>
+
+<div class="content-card">
+
+<div class="card-header">🧮 Derived Values</div>
+
+<div class="section-grid three-columns">
+
+<div class="metric-card compact">
+
+<div class="metric-label">MAP</div>
+
+<div id="whatIfMAP" class="metric-value">
+90.0
+</div>
+
+</div>
+
+<div class="metric-card compact">
+
+<div class="metric-label">MOPP</div>
+
+<div id="whatIfMOPP" class="metric-value">
+45.0
+</div>
+
+</div>
+
+<div class="metric-card compact">
+
+<div class="metric-label">DOPP</div>
+
+<div id="whatIfDOPP" class="metric-value">
+61.0
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="content-card">
+
+<div class="card-header">🎛️ Demonstration Screening Heuristic</div>
+
+<div class="risk-gauge">
+
+<div
+id="riskGauge"
+class="risk-gauge-fill"
+style="width:24%;">
+</div>
+
+</div>
+
+<div class="result-title">
+
+<span id="whatIfRisk">
+LOWER SCREENING CONCERN
+</span>
+
+</div>
+
+<p>
+Move the sliders to observe how the transparent simulation changes.
+</p>
+
+</div>
+
+</section>
+
+
+<!-- ARCHITECTURE -->
+<section id="architecture" class="page-section">
+
+<div class="page-heading">
+<div>
+<div class="page-eyebrow">MODULE 10</div>
+<h1>System Architecture</h1>
+<p>
+End-to-end architecture connecting low-cost physiological sensing
+with clinical reference data.
+</p>
+</div>
+</div>
+
+<div class="architecture-container">
+
+<div class="architecture-node">
+<div class="architecture-icon">👤</div>
+<strong>Participant</strong>
+<span>Physiological measurements</span>
+</div>
+
+<div class="architecture-arrow">↓</div>
+
+<div class="architecture-node">
+<div class="architecture-icon">🫀</div>
+<strong>PPG + BP</strong>
+<span>Peripheral physiological signals</span>
+</div>
+
+<div class="architecture-arrow">↓</div>
+
+<div class="architecture-node">
+<div class="architecture-icon">📟</div>
+<strong>ESP32</strong>
+<span>Acquisition + communication</span>
+</div>
+
+<div class="architecture-arrow">↓</div>
+
+<div class="architecture-node">
+<div class="architecture-icon">🧹</div>
+<strong>Signal Processing</strong>
+<span>Filtering + quality control</span>
+</div>
+
+<div class="architecture-arrow">↓</div>
+
+<div class="architecture-node">
+<div class="architecture-icon">🧮</div>
+<strong>Feature Extraction</strong>
+<span>Numerical physiological features</span>
+</div>
+
+<div class="architecture-split">
+
+<div class="architecture-branch">
+
+<div class="architecture-node">
+<div class="architecture-icon">👁️</div>
+<strong>Clinical Path</strong>
+<span>IOP + OCT/OCTA + visual field + optic nerve assessment</span>
+</div>
+
+</div>
+
+<div class="architecture-branch">
+
+<div class="architecture-node">
+<div class="architecture-icon">📡</div>
+<strong>IoT Path</strong>
+<span>PPG + BP + signal-quality data</span>
+</div>
+
+</div>
+
+</div>
+
+<div class="architecture-arrow">↓</div>
+
+<div class="architecture-node">
+<div class="architecture-icon">🔗</div>
+<strong>Research Data Fusion</strong>
+<span>Combine physiological and clinical reference variables</span>
+</div>
+
+<div class="architecture-arrow">↓</div>
+
+<div class="architecture-node">
+<div class="architecture-icon">🤖</div>
+<strong>Statistical / ML Analysis</strong>
+<span>Association and screening-support investigation</span>
+</div>
+
+<div class="architecture-arrow">↓</div>
+
+<div class="architecture-node">
+<div class="architecture-icon">🎯</div>
+<strong>Screening Support</strong>
+<span>Indication for formal ophthalmic evaluation</span>
+</div>
+
+</div>
+
+<div class="content-card">
+
+<div class="card-header">🔬 One-Line Research Workflow</div>
+
+<div class="formula-box">
+Participant
+→ Physiological Signals
+→ IoT Acquisition
+→ Signal Processing
+→ Feature Extraction
+→ Clinical Reference
+→ Data Fusion
+→ Statistical / ML Analysis
+→ Screening Support
+→ Professional Eye Examination
+</div>
+
+</div>
+
+</section>
+
+
+<!-- HARDWARE BLUEPRINT -->
+<section id="hardware" class="page-section">
+
+<div class="page-heading">
+<div>
+<div class="page-eyebrow">MODULE 11</div>
+<h1>Hardware Blueprint</h1>
+<p>
+Conceptual hardware architecture for the proposed research prototype.
+</p>
+</div>
+</div>
+
+<div class="warning-box">
+
+<strong>Hardware Design Boundary</strong>
+
+<p>
+The exact electrical interface depends on the selected BP device,
+communication protocol and final sensor modules. GPIO numbers should
+only be specified after the actual hardware is selected.
+</p>
+
+</div>
+
+<div class="section-grid two-columns">
+
+<div class="hardware-card">
+
+<div class="hardware-number">01</div>
+
+<h3>ESP32 Development Board</h3>
+
+<p>
+Main microcontroller for sensor acquisition, basic edge processing
+and wireless communication.
+</p>
+
+<div class="hardware-spec">
+Controller: ESP32
+<br>
+Connectivity: Wi-Fi / Bluetooth
+</div>
+
+</div>
+
+<div class="hardware-card">
+
+<div class="hardware-number">02</div>
+
+<h3>MAX30102</h3>
+
+<p>
+Optical PPG sensor for peripheral pulse waveform acquisition.
+</p>
+
+<div class="hardware-spec">
+Signal: PPG
+<br>
+Interface: I²C
+</div>
+
+</div>
+
+<div class="hardware-card">
+
+<div class="hardware-number">03</div>
+
+<h3>Validated BP Source</h3>
+
+<p>
+Provides systolic and diastolic blood pressure measurements for
+the research data pipeline.
+</p>
+
+<div class="hardware-spec">
+Output: SBP / DBP
+<br>
+Important: MAX30102 does not directly measure BP
+</div>
+
+</div>
+
+<div class="hardware-card">
+
+<div class="hardware-number">04</div>
+
+<h3>OLED Display</h3>
+
+<p>
+Optional local interface for displaying sensor and acquisition status.
+</p>
+
+<div class="hardware-spec">
+Interface: I²C
+</div>
+
+</div>
+
+<div class="hardware-card">
+
+<div class="hardware-number">05</div>
+
+<h3>Battery / Power Module</h3>
+
+<p>
+Portable power source for the prototype device.
+</p>
+
+</div>
+
+<div class="hardware-card">
+
+<div class="hardware-number">06</div>
+
+<h3>Wireless Data Layer</h3>
+
+<p>
+Transfers acquired data from the ESP32 to the research application.
+</p>
+
+<div class="hardware-spec">
+Wi-Fi / BLE
+</div>
+
+</div>
+
+</div>
+
+<div class="content-card">
+
+<div class="card-header">🔌 Conceptual Hardware Flow</div>
+
+<div class="hardware-flow">
+
+<div class="hardware-flow-item">
+🫀
+<br>
+MAX30102
+</div>
+
+<div class="hardware-flow-arrow">→</div>
+
+<div class="hardware-flow-item">
+📟
+<br>
+ESP32
+</div>
+
+<div class="hardware-flow-arrow">→</div>
+
+<div class="hardware-flow-item">
+📡
+<br>
+Wireless
+</div>
+
+<div class="hardware-flow-arrow">→</div>
+
+<div class="hardware-flow-item">
+💻
+<br>
+Research Application
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+
+<div class="card-header">Phase 3</div>
+
+<!-- RESEARCH CONTEXT -->
+<section id="research" class="page-section">
+
+<div class="page-heading">
+<div>
+<div class="page-eyebrow">MODULE 12</div>
+<h1>Research Context</h1>
+<p>
+Scientific motivation, research gap, limitations and future development.
+</p>
+</div>
+</div>
+
+<div class="section-grid two-columns">
+
+<div class="content-card">
+
+<div class="card-header">✅ Established Components</div>
+
+<ul class="research-list">
+
+<li>
+Blood pressure is a relevant vascular variable in glaucoma research.
+</li>
+
+<li>
+Ocular perfusion pressure has been investigated in relation to
+glaucoma and glaucoma-related outcomes.
+</li>
+
+<li>
+Retinal and optic nerve head vascular characteristics can be
+investigated using specialized ophthalmic imaging.
+</li>
+
+<li>
+PPG provides a non-invasive peripheral optical pulse waveform.
+</li>
+
+<li>
+Clinical glaucoma assessment uses multiple complementary
+measurements rather than a single low-cost sensor.
+</li>
+
+</ul>
+
+</div>
+
+
+<div class="content-card">
+
+<div class="card-header">⚠️ Not Established by This Prototype</div>
+
+<ul class="research-list">
+
+<li>
+PPG alone is not a validated glaucoma diagnostic biomarker.
+</li>
+
+<li>
+MAX30102 does not directly measure ocular blood flow.
+</li>
+
+<li>
+MAX30102 does not directly measure blood pressure.
+</li>
+
+<li>
+Finger SpO₂ should not be interpreted as retinal oxygen saturation.
+</li>
+
+<li>
+The prototype cannot replace OCT, OCTA, tonometry, visual field
+testing or ophthalmic examination.
+</li>
+
+</ul>
+
+</div>
+
+</div>
+
+
+<div class="content-card">
+
+<div class="card-header">🔍 Research Gap</div>
+
+<p>
+A potential research direction is to investigate whether combinations
+of inexpensive peripheral physiological signals can provide incremental
+information that complements established clinical assessment.
+</p>
+
+<p>
+The important question is not whether an IoT sensor can directly
+diagnose glaucoma, but whether measurable physiological patterns
+contain useful additional information for screening-support research.
+</p>
+
+</div>
+
+
+<div class="research-question-card">
+
+<div class="research-question-label">
+CENTRAL RESEARCH QUESTION
+</div>
+
+<h2>
+Can low-cost peripheral physiological signals provide incremental
+information useful for identifying individuals who may benefit from
+formal ophthalmic evaluation?
+</h2>
+
+</div>
+
+
+<div class="section-grid three-columns">
+
+<div class="content-card">
+
+<div class="card-header">Phase 1</div>
+
+<h3>Prototype</h3>
+
+<ul class="research-list">
+
+<li>Build sensing architecture</li>
+
+<li>Acquire PPG</li>
+
+<li>Integrate validated BP source</li>
+
+<li>Develop mobile/web interface</li>
+
+</ul>
+
+</div>
+
+
+<div class="content-card">
+
+<div class="card-header">Phase 2</div>
+
+<h3>Data Study</h3>
+
+<ul class="research-list">
+
+<li>Recruit appropriate participants</li>
+
+<li>Collect de-identified data</li>
+
+<li>Pair physiological and clinical variables</li>
+
+<li>Perform statistical analysis</li>
+
+</ul>
+
+</div>
+
+
+<div class="content-card">
+
+<div class="card-header">Phase 3</div>
+
+<h3>Validation</h3>
+
+<ul class="research-list">
+
+<li>Train candidate models</li>
+
+<li>Use independent validation</li>
+
+<li>Report uncertainty</li>
+
+<li>Assess clinical usefulness</li>
+
+</ul>
+
+</div>
+
+</div>
+
+
+<div class="content-card">
+
+<div class="card-header">🛡️ Research Limitations</div>
+
+<ul class="research-list">
+
+<li>
+Simulation data cannot establish clinical validity.
+</li>
+
+<li>
+Peripheral physiological signals are affected by motion,
+temperature, sensor placement and individual variability.
+</li>
+
+<li>
+Associations between vascular variables and glaucoma do not
+necessarily establish causation.
+</li>
+
+<li>
+Clinical measurements such as IOP and OCT/OCTA require appropriate
+professional equipment and expertise.
+</li>
+
+<li>
+A real ML model requires representative data and rigorous validation.
+</li>
+
+</ul>
+
+</div>
+
+
+<div class="content-card">
+
+<div class="card-header">🚀 Development Roadmap</div>
+
+<div class="flow-list">
+
+<div class="flow-item">
+<span class="flow-number">01</span>
+Literature review and research question refinement
+</div>
+
+<div class="flow-item">
+<span class="flow-number">02</span>
+Hardware prototype
+</div>
+
+<div class="flow-item">
+<span class="flow-number">03</span>
+Sensor validation and signal-quality testing
+</div>
+
+<div class="flow-item">
+<span class="flow-number">04</span>
+Pilot data collection
+</div>
+
+<div class="flow-item">
+<span class="flow-number">05</span>
+Feature engineering
+</div>
+
+<div class="flow-item">
+<span class="flow-number">06</span>
+Statistical analysis and ML experiments
+</div>
+
+<div class="flow-item">
+<span class="flow-number">07</span>
+Independent validation
+</div>
+
+<div class="flow-item">
+<span class="flow-number">08</span>
+Clinical and ethical review
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+</main>
+</div>
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>

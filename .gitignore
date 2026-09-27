@@ -1,0 +1,58 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# Local datasets / generated ML artifacts
+backend/data/raw/*
+backend/data/processed/*
+backend/data/splits/*
+backend/models/*
+backend/reports/*
+
+# Keep placeholders
+!backend/data/raw/.gitkeep
+!backend/data/processed/.gitkeep
+!backend/data/splits/.gitkeep
+!backend/models/.gitkeep
+!backend/reports/.gitkeep
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Python virtual environments
+venv/
+.venv/
+Backend/venv/
+Backend/.venv/
+
+# Datasets and generated data
+Backend/data/raw/*
+Backend/data/cleaned/*
+Backend/data/processed/*
+Backend/data/splits/*.csv
+Backend/data/reports/*.json
+Backend/data/reports/*.txt
+Backend/data/reports/*.csv
+
+# Model artifacts and experiment outputs
+Backend/models/*.pt
+Backend/models/*.pth
+Backend/models/*.ckpt
+Backend/models/*.json
+Backend/reports/*.csv
+Backend/reports/*.json
+Backend/reports/evaluation/
+Backend/ml/checkpoints/
+Backend/ml/artifacts/
+
+# Python caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
