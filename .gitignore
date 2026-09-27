@@ -1,58 +1,82 @@
+# =========================================================
 # Python
+# =========================================================
+
 __pycache__/
 *.py[cod]
+*.pyo
 *.egg-info/
-.venv/
+
+# Virtual environments
 venv/
+.venv/
 env/
-
-# Local datasets / generated ML artifacts
-backend/data/raw/*
-backend/data/processed/*
-backend/data/splits/*
-backend/models/*
-backend/reports/*
-
-# Keep placeholders
-!backend/data/raw/.gitkeep
-!backend/data/processed/.gitkeep
-!backend/data/splits/.gitkeep
-!backend/models/.gitkeep
-!backend/reports/.gitkeep
-
-# OS / editors
-.DS_Store
-Thumbs.db
-.vscode/
-.idea/
-
-# Python virtual environments
-venv/
-.venv/
 Backend/venv/
 Backend/.venv/
 
-# Datasets and generated data
+# =========================================================
+# Datasets
+# =========================================================
+
+# Raw / cleaned / processed image datasets
 Backend/data/raw/*
 Backend/data/cleaned/*
 Backend/data/processed/*
-Backend/data/splits/*.csv
+
+# Generated dataset reports
 Backend/data/reports/*.json
 Backend/data/reports/*.txt
 Backend/data/reports/*.csv
 
-# Model artifacts and experiment outputs
+# =========================================================
+# Dataset split manifests
+# =========================================================
+
+# Keep the split CSV files available to the team.
+# Actual image datasets remain ignored.
+!Backend/data/splits/
+!Backend/data/splits/*.csv
+!Backend/data/splits/.gitkeep
+
+# =========================================================
+# Model artifacts
+# =========================================================
+
 Backend/models/*.pt
 Backend/models/*.pth
 Backend/models/*.ckpt
 Backend/models/*.json
+
+# Experiment / generated reports
 Backend/reports/*.csv
 Backend/reports/*.json
 Backend/reports/evaluation/
 Backend/ml/checkpoints/
 Backend/ml/artifacts/
 
-# Python caches
-__pycache__/
-*.py[cod]
+# =========================================================
+# Testing / caches
+# =========================================================
+
 .pytest_cache/
+.coverage
+htmlcov/
+
+# =========================================================
+# Jupyter
+# =========================================================
+
+.ipynb_checkpoints/
+
+# =========================================================
+# OS / editors
+# =========================================================
+
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Local generated model checkpoints / inference outputs
+Backend/models/checkpoints/
+Backend/reports/inference/
