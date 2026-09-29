@@ -1,0 +1,4 @@
+split,patient_count,image_count
+train,200,499
+val,43,123
+test,43,115

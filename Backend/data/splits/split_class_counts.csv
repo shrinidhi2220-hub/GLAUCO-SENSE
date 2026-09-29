@@ -1,0 +1,7 @@
+split,label,image_count
+train,GON+,367
+train,GON-,132
+val,GON+,93
+val,GON-,30
+test,GON+,80
+test,GON-,35

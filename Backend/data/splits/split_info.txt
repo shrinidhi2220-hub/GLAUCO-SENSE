@@ -1,0 +1,15 @@
+seed=42
+split_unit=patient
+test_size=0.15
+val_size=0.15
+total_patients=286
+total_images=737
+train_patients=200
+val_patients=43
+test_patients=43
+train_images=499
+val_images=123
+test_images=115
+patient_overlap_train_val=0
+patient_overlap_train_test=0
+patient_overlap_val_test=0

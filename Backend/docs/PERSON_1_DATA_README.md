@@ -1,15 +1,29 @@
-# Person 1 — Data + Preprocessing (Locked Scope)
+# Person 1 — Data + Preprocessing Handoff
 
-Person 1 owns dataset acquisition/organization, label understanding, image cleaning/quality checks, resize/normalization, train/validation/test splitting, class-distribution analysis, and dataset documentation.
+## Scope
 
-## Handoff to Person 2
-Create these files under `Backend/data/splits/`:
-- `train.csv`
-- `val.csv`
-- `test.csv`
+Person 1 owns the complete dataset preparation pipeline for GLAUCO-SENSE:
 
-Each CSV must contain:
-- `path` — path to an image, relative to the agreed `data-root`
-- `label` — the accepted class name
+1. Dataset acquisition and organization
+2. Label and metadata verification
+3. Image quality validation
+4. Duplicate detection and resolution
+5. Image preprocessing
+6. Patient-level train/validation/test splitting
+7. Class-imbalance analysis
+8. Dataset documentation and handoff
 
-Keep labels consistent across all three splits. Do not change labels inside Person 2's code.
+---
+
+# Dataset
+
+## Source
+
+Dataset: Hillel-Yaffe Glaucoma Dataset (HYGD)
+
+Raw dataset location:
+
+```text
+Backend/data/raw/HYGD/
+├── Images/
+└── Labels.csv

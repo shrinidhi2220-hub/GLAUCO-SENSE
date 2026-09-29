@@ -9,6 +9,7 @@ from fastapi import FastAPI, File, HTTPException, UploadFile
 from PIL import Image, UnidentifiedImageError
 
 from app.ml.api_service import predict_image
+from fastapi.middleware.cors import CORSMiddleware
 
 
 # ---------------------------------------------------------
@@ -20,10 +21,10 @@ BASE_DIR = Path(__file__).resolve().parents[1]
 MODEL_PATH = Path(
     os.getenv(
         "GLAUCO_MODEL_PATH",
-        BASE_DIR
-        / "models"
-        / "checkpoints"
-        / "baseline_smoke_test.pt",
+       BASE_DIR
+/ "models"
+/ "checkpoints"
+/ "hygd_resnet18_baseline.pt",
     )
 )
 
@@ -39,6 +40,18 @@ app = FastAPI(
         "GLAUCO-SENSE research backend for "
         "glaucoma image classification."
     ),
+)
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5500",
+        "http://127.0.0.1:5500",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # IMPORTANT:

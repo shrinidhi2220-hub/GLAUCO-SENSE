@@ -20,7 +20,9 @@ class GlaucomaInference:
     """
     Reusable single-image inference engine.
 
-    This class is independent of Person 1's dataset.
+    Class names can come from the checkpoint metadata.
+    Older test checkpoints without metadata continue to use
+    the legacy glaucoma/normal mapping.
     """
 
     def __init__(
@@ -29,24 +31,12 @@ class GlaucomaInference:
         classes: Sequence[str] | None = None,
         device: str | None = None,
     ) -> None:
-        self.checkpoint_path = Path(
-            checkpoint_path
-        )
+        self.checkpoint_path = Path(checkpoint_path)
 
         if not self.checkpoint_path.exists():
             raise FileNotFoundError(
                 f"Checkpoint not found: "
                 f"{self.checkpoint_path}"
-            )
-
-        self.classes = list(
-            classes or DEFAULT_CLASSES
-        )
-
-        if len(self.classes) != 2:
-            raise ValueError(
-                "Inference currently requires exactly "
-                "two classes."
             )
 
         self.device = torch.device(
@@ -57,11 +47,6 @@ class GlaucomaInference:
                 if torch.cuda.is_available()
                 else "cpu"
             )
-        )
-
-        self.model = build_baseline_model(
-            num_classes=len(self.classes),
-            pretrained=False,
         )
 
         checkpoint = torch.load(
@@ -75,6 +60,27 @@ class GlaucomaInference:
                 "Checkpoint does not contain "
                 "'model_state_dict'."
             )
+
+        # Explicit classes take priority.
+        # Otherwise use checkpoint metadata.
+        # If older checkpoint has neither, preserve legacy behavior.
+        if classes is not None:
+            self.classes = list(classes)
+        elif "classes" in checkpoint:
+            self.classes = list(checkpoint["classes"])
+        else:
+            self.classes = list(DEFAULT_CLASSES)
+
+        if len(self.classes) != 2:
+            raise ValueError(
+                "Inference currently requires exactly "
+                "two classes."
+            )
+
+        self.model = build_baseline_model(
+            num_classes=len(self.classes),
+            pretrained=False,
+        )
 
         self.model.load_state_dict(
             checkpoint["model_state_dict"]
@@ -90,9 +96,7 @@ class GlaucomaInference:
         self,
         image_path: str | Path,
     ) -> dict:
-        """
-        Predict a single image.
-        """
+        """Predict a single image."""
 
         image_path = Path(image_path)
 

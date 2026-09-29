@@ -1,56 +1,37 @@
 /* =========================================================
    GLAUCO-SENSE
-   Main JavaScript
+   Frontend application logic
+
    Handles:
    - Navigation
-   - Virtual Patient
-   - IoT simulation
-   - Live PPG
-   - Signal processing
-   - Feature calculations
-   - What-If laboratory
-   - Screening result
-   - Complete demo
+   - Mobile menu
+   - Fundus image selection
+   - Image preview
+   - Real FastAPI prediction
+   - Screening result display
 ========================================================= */
 
-// @ts-nocheck
-
 document.addEventListener("DOMContentLoaded", () => {
+
+    /* =====================================================
+       CONFIGURATION
+    ===================================================== */
+
+    const API_BASE_URL = "http://localhost:8000";
+
+    const PREDICT_ENDPOINT =
+        `${API_BASE_URL}/api/predict`;
+
 
     /* =====================================================
        GLOBAL STATE
     ===================================================== */
 
     const state = {
-
-        currentSection: "overview",
-
-        patientType: "reference",
-
-        ppgRunning: false,
-
-        ppgAnimationId: null,
-
-        packetCount: 0,
-
-        ppgTime: 0,
-
-        processingRunning: false,
-
-        demoRunning: false,
-
-        demoTimer: null,
-
-        measurementTimer: null,
-
-        sbp: 118,
-
-        dbp: 76,
-
-        iop: 14.2,
-
-        hr: 68
-
+        selectedFile: null,
+        previewUrl: null,
+        lastResult: null,
+        analyzing: false,
     };
 
 
@@ -70,9 +51,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const pageSections =
         document.querySelectorAll(".page-section");
 
-    const runDemoButton =
-        document.getElementById("runDemoButton");
-
 
     /* =====================================================
        NAVIGATION
@@ -84,109 +62,63 @@ document.addEventListener("DOMContentLoaded", () => {
             document.getElementById(sectionId);
 
         if (!target) {
-
             console.warn(
                 "Section not found:",
                 sectionId
             );
-
             return;
-
         }
 
-
-        /* Hide every page */
-
         pageSections.forEach(section => {
-
             section.classList.remove(
                 "active-section"
             );
-
         });
-
-
-        /* Show selected page */
 
         target.classList.add(
             "active-section"
         );
 
-
-        /* Update navigation buttons */
-
         navButtons.forEach(button => {
 
-            button.classList.remove("active");
+            button.classList.remove(
+                "active"
+            );
 
             if (
                 button.dataset.section ===
                 sectionId
             ) {
-
-                button.classList.add("active");
-
+                button.classList.add(
+                    "active"
+                );
             }
-
         });
 
-
-        state.currentSection =
-            sectionId;
-
-
-        /* Close mobile menu */
-
-        if (window.innerWidth <= 700) {
-
+        if (
+            window.innerWidth <= 700 &&
+            sidebar
+        ) {
             sidebar.classList.remove(
                 "menu-open"
             );
-
         }
-
-
-        /* Resize chart if monitor opened */
-
-        if (sectionId === "monitor") {
-
-            setTimeout(() => {
-
-                resizePPGCanvas();
-
-            }, 50);
-
-        }
-
-
-        /* Scroll page to top */
 
         window.scrollTo({
-
             top: 0,
-
-            behavior: "smooth"
-
+            behavior: "smooth",
         });
-
     }
 
-
-    /* =====================================================
-       NAVIGATION CLICK EVENTS
-    ===================================================== */
 
     navButtons.forEach(button => {
 
         button.addEventListener(
             "click",
             () => {
-
-                const section =
-                    button.dataset.section;
-
-                navigateTo(section);
-
+                navigateTo(
+                    button.dataset.section
+                );
             }
         );
 
@@ -197,84 +129,22 @@ document.addEventListener("DOMContentLoaded", () => {
        MOBILE MENU
     ===================================================== */
 
-    mobileMenuButton.addEventListener(
-        "click",
-        () => {
+    if (mobileMenuButton && sidebar) {
 
-            sidebar.classList.toggle(
-                "menu-open"
-            );
+        mobileMenuButton.addEventListener(
+            "click",
+            () => {
+                sidebar.classList.toggle(
+                    "menu-open"
+                );
+            }
+        );
 
-        }
-    );
-
-
-    /* =====================================================
-       PATIENT DATA
-    ===================================================== */
-
-    const patientData = {
-
-        reference: {
-
-            id: "SUBJ-SIM-1042",
-
-            description:
-                "Synthetic reference physiological profile.",
-
-            age: 52,
-
-            sex: "F",
-
-            sqi: 98,
-
-            sbp: 118,
-
-            dbp: 76,
-
-            hr: 68,
-
-            iopRight: 14.2,
-
-            iopLeft: 14.8,
-
-            vcdr: 0.36
-
-        },
-
-
-        elevated: {
-
-            id: "SUBJ-SIM-2087",
-
-            description:
-                "Synthetic profile demonstrating an elevated vascular-pattern simulation.",
-
-            age: 61,
-
-            sex: "M",
-
-            sqi: 94,
-
-            sbp: 148,
-
-            dbp: 92,
-
-            hr: 76,
-
-            iopRight: 20.5,
-
-            iopLeft: 21.1,
-
-            vcdr: 0.54
-
-        }
-
-    };
+    }
 
 
     /* =====================================================
-       HELPER FUNCTION
+       HELPER
     ===================================================== */
 
     function setText(id, value) {
@@ -283,1648 +153,640 @@ document.addEventListener("DOMContentLoaded", () => {
             document.getElementById(id);
 
         if (element) {
+            element.textContent = value;
+        }
+    }
 
-            element.textContent =
-                value;
 
+    function setButtonState(
+        button,
+        disabled,
+        text
+    ) {
+
+        if (!button) {
+            return;
         }
 
+        button.disabled = disabled;
+
+        if (text !== undefined) {
+            button.textContent = text;
+        }
     }
 
 
     /* =====================================================
-       PATIENT SELECTOR
+       FUNDUS IMAGE ELEMENTS
     ===================================================== */
 
-    const patientButtons =
-        document.querySelectorAll(
-            ".patient-select-button"
-        );
-
-
-    patientButtons.forEach(button => {
-
-        button.addEventListener(
-            "click",
-            () => {
-
-                const type =
-                    button.dataset.patient;
-
-                if (!patientData[type]) {
-
-                    return;
-
-                }
-
-                state.patientType =
-                    type;
-
-
-                patientButtons.forEach(btn => {
-
-                    btn.classList.remove(
-                        "active"
-                    );
-
-                });
-
-
-                button.classList.add(
-                    "active"
-                );
-
-
-                loadPatient(type);
-
-            }
-        );
-
-    });
-
-
-    /* =====================================================
-       LOAD PATIENT
-    ===================================================== */
-
-    function loadPatient(type) {
-
-        const patient =
-            patientData[type];
-
-
-        state.sbp =
-            patient.sbp;
-
-        state.dbp =
-            patient.dbp;
-
-        state.hr =
-            patient.hr;
-
-        state.iop =
-            patient.iopRight;
-
-
-        /* Patient information */
-
-        setText(
-            "patientId",
-            patient.id
-        );
-
-        setText(
-            "patientDescription",
-            patient.description
-        );
-
-        setText(
-            "patientAge",
-            patient.age
-        );
-
-        setText(
-            "patientSex",
-            patient.sex
-        );
-
-        setText(
-            "patientSQI",
-            patient.sqi + "%"
-        );
-
-
-        /* Patient measurements */
-
-        setText(
-            "patientSBP",
-            patient.sbp
-        );
-
-        setText(
-            "patientDBP",
-            patient.dbp
-        );
-
-        setText(
-            "patientHR",
-            patient.hr
-        );
-
-
-        /* Table */
-
-        setText(
-            "tableSBP",
-            patient.sbp + " mmHg"
-        );
-
-        setText(
-            "tableDBP",
-            patient.dbp + " mmHg"
-        );
-
-        setText(
-            "tableHR",
-            patient.hr + " bpm"
-        );
-
-        setText(
-            "tableSQI",
-            patient.sqi + "%"
-        );
-
-
-        /* Clinical reference */
-
-        setText(
-            "clinicalIOPR",
-            patient.iopRight.toFixed(1)
-        );
-
-        setText(
-            "clinicalIOPL",
-            patient.iopLeft.toFixed(1)
-        );
-
-        setText(
-            "clinicalVCDR",
-            patient.vcdr.toFixed(2)
-        );
-
-
-        /* Update all calculated features */
-
-        updateFeatureValues();
-
-        updateLiveValues();
-
-        updateResult();
-
-        updateWhatIfFromPatient();
-
-    }
-
-
-    /* =====================================================
-       SENSOR ACTIVATION
-    ===================================================== */
-
-    const activateSensorButton =
+    const fundusInput =
         document.getElementById(
-            "activateSensorButton"
+            "fundusInput"
         );
 
-
-    if (activateSensorButton) {
-
-        activateSensorButton.addEventListener(
-            "click",
-            () => {
-
-                activateSensorButton.textContent =
-                    "✓ SENSOR SIMULATION ACTIVE";
-
-                activateSensorButton.style.background =
-                    "var(--green-800)";
-
-                startPPG();
-
-                navigateTo("monitor");
-
-            }
-        );
-
-    }
-
-
-    /* =====================================================
-       MAP CALCULATION
-    ===================================================== */
-
-    function calculateMAP(sbp, dbp) {
-
-        return (
-            dbp +
-            (sbp - dbp) / 3
-        );
-
-    }
-
-
-    /* =====================================================
-       MOPP CALCULATION
-    ===================================================== */
-
-    function calculateMOPP(
-        sbp,
-        dbp,
-        iop
-    ) {
-
-        const map =
-            calculateMAP(
-                sbp,
-                dbp
-            );
-
-        return (
-            (2 / 3) * map -
-            iop
-        );
-
-    }
-
-
-    /* =====================================================
-       DOPP CALCULATION
-    ===================================================== */
-
-    function calculateDOPP(
-        dbp,
-        iop
-    ) {
-
-        return dbp - iop;
-
-    }
-
-
-    /* =====================================================
-       FEATURE VALUES
-    ===================================================== */
-
-    function updateFeatureValues() {
-
-        const map =
-            calculateMAP(
-                state.sbp,
-                state.dbp
-            );
-
-
-        const mopp =
-            calculateMOPP(
-                state.sbp,
-                state.dbp,
-                state.iop
-            );
-
-
-        const dopp =
-            calculateDOPP(
-                state.dbp,
-                state.iop
-            );
-
-
-        setText(
-            "featureSBP",
-            Math.round(state.sbp)
-        );
-
-        setText(
-            "featureDBP",
-            Math.round(state.dbp)
-        );
-
-        setText(
-            "featureMAP",
-            map.toFixed(1)
-        );
-
-        setText(
-            "featureHR",
-            Math.round(state.hr)
-        );
-
-        setText(
-            "featureMOPP",
-            mopp.toFixed(1)
-        );
-
-        setText(
-            "featureDOPP",
-            dopp.toFixed(1)
-        );
-
-    }
-
-
-    /* =====================================================
-       LIVE VALUES
-    ===================================================== */
-
-    function updateLiveValues() {
-
-        setText(
-            "liveSBP",
-            Math.round(state.sbp)
-        );
-
-        setText(
-            "liveDBP",
-            Math.round(state.dbp)
-        );
-
-        setText(
-            "liveHR",
-            Math.round(state.hr)
-        );
-
-    }
-
-
-    /* =====================================================
-       PPG CANVAS
-    ===================================================== */
-
-    const canvas =
+    const fundusPreview =
         document.getElementById(
-            "ppgCanvas"
+            "fundusPreview"
         );
 
-    const ctx =
-        canvas ?
-        canvas.getContext("2d") :
-        null;
-
-
-    function resizePPGCanvas() {
-
-        if (!canvas || !ctx) {
-
-            return;
-
-        }
-
-
-        const rect =
-            canvas.getBoundingClientRect();
-
-
-        if (
-            rect.width === 0 ||
-            rect.height === 0
-        ) {
-
-            return;
-
-        }
-
-
-        const dpr =
-            window.devicePixelRatio ||
-            1;
-
-
-        canvas.width =
-            rect.width * dpr;
-
-        canvas.height =
-            rect.height * dpr;
-
-
-        ctx.setTransform(
-            dpr,
-            0,
-            0,
-            dpr,
-            0,
-            0
+    const imagePreviewPlaceholder =
+        document.getElementById(
+            "imagePreviewPlaceholder"
         );
 
+    const selectedFileName =
+        document.getElementById(
+            "selectedFileName"
+        );
 
-        drawPPG();
+    const analyzeButton =
+        document.getElementById(
+            "analyzeButton"
+        );
 
-    }
-
-
-    window.addEventListener(
-        "resize",
-        resizePPGCanvas
-    );
+    const analysisStatus =
+        document.getElementById(
+            "analysisStatus"
+        );
 
 
     /* =====================================================
-       PPG WAVEFORM
+       RESULT ELEMENTS
     ===================================================== */
 
-    function generatePPGValue(
-        x,
-        time
-    ) {
-
-        const frequency =
-            state.hr / 60;
-
-
-        const pulse =
-            Math.sin(
-                2 *
-                Math.PI *
-                frequency *
-                time
-            );
-
-
-        const harmonic =
-            0.25 *
-            Math.sin(
-                4 *
-                Math.PI *
-                frequency *
-                time
-            );
-
-
-        const dicrotic =
-            0.08 *
-            Math.sin(
-                7 *
-                Math.PI *
-                frequency *
-                time
-            );
-
-
-        const noise =
-            (
-                Math.sin(
-                    x * 0.13 +
-                    time * 3
-                ) *
-                0.035
-            );
-
-
-        return (
-            pulse +
-            harmonic +
-            dicrotic +
-            noise
+    const resultTitle =
+        document.getElementById(
+            "resultTitle"
         );
 
+    const resultDescription =
+        document.getElementById(
+            "resultDescription"
+        );
+
+    const resultClass =
+        document.getElementById(
+            "resultClass"
+        );
+
+    const resultConfidence =
+        document.getElementById(
+            "resultConfidence"
+        );
+
+    const resultClassIndex =
+        document.getElementById(
+            "resultClassIndex"
+        );
+
+    const gonPositiveProbability =
+        document.getElementById(
+            "gonPositiveProbability"
+        );
+
+    const gonNegativeProbability =
+        document.getElementById(
+            "gonNegativeProbability"
+        );
+
+    const resultNote =
+        document.getElementById(
+            "resultNote"
+        );
+
+
+    /* =====================================================
+       IMAGE PREVIEW
+    ===================================================== */
+
+    function clearPreview() {
+
+        if (state.previewUrl) {
+            URL.revokeObjectURL(
+                state.previewUrl
+            );
+
+            state.previewUrl = null;
+        }
+
+        if (fundusPreview) {
+            fundusPreview.style.display =
+                "none";
+
+            fundusPreview.removeAttribute(
+                "src"
+            );
+        }
+
+        if (imagePreviewPlaceholder) {
+            imagePreviewPlaceholder.style.display =
+                "inline";
+        }
+    }
+
+
+    function showPreview(file) {
+
+        clearPreview();
+
+        state.previewUrl =
+            URL.createObjectURL(file);
+
+        if (fundusPreview) {
+
+            fundusPreview.src =
+                state.previewUrl;
+
+            fundusPreview.style.display =
+                "block";
+        }
+
+        if (imagePreviewPlaceholder) {
+            imagePreviewPlaceholder.style.display =
+                "none";
+        }
     }
 
 
     /* =====================================================
-       DRAW PPG
+       RESET RESULT
     ===================================================== */
 
-    function drawPPG() {
+    function resetResult() {
 
-        if (!canvas || !ctx) {
-
-            return;
-
-        }
-
-
-        const width =
-            canvas.clientWidth;
-
-        const height =
-            canvas.clientHeight;
-
-
-        if (
-            width <= 0 ||
-            height <= 0
-        ) {
-
-            return;
-
-        }
-
-
-        /* Background */
-
-        ctx.clearRect(
-            0,
-            0,
-            width,
-            height
-        );
-
-
-        ctx.fillStyle =
-            "#fffdf8";
-
-        ctx.fillRect(
-            0,
-            0,
-            width,
-            height
-        );
-
-
-        /* Grid */
-
-        ctx.strokeStyle =
-            "#e9dfca";
-
-        ctx.lineWidth = 1;
-
-
-        const gridX = 45;
-
-        const gridY = 35;
-
-
-        for (
-            let x = 0;
-            x < width;
-            x += gridX
-        ) {
-
-            ctx.beginPath();
-
-            ctx.moveTo(
-                x,
-                0
-            );
-
-            ctx.lineTo(
-                x,
-                height
-            );
-
-            ctx.stroke();
-
-        }
-
-
-        for (
-            let y = 0;
-            y < height;
-            y += gridY
-        ) {
-
-            ctx.beginPath();
-
-            ctx.moveTo(
-                0,
-                y
-            );
-
-            ctx.lineTo(
-                width,
-                y
-            );
-
-            ctx.stroke();
-
-        }
-
-
-        /* Wave */
-
-        ctx.beginPath();
-
-        ctx.strokeStyle =
-            "#3d7b58";
-
-        ctx.lineWidth = 2.2;
-
-
-        const center =
-            height / 2;
-
-
-        const amplitude =
-            height * 0.27;
-
-
-        for (
-            let x = 0;
-            x <= width;
-            x += 2
-        ) {
-
-            const time =
-                x * 0.045 +
-                state.ppgTime;
-
-
-            const value =
-                generatePPGValue(
-                    x,
-                    time
-                );
-
-
-            const y =
-                center -
-                value * amplitude;
-
-
-            if (x === 0) {
-
-                ctx.moveTo(
-                    x,
-                    y
-                );
-
-            } else {
-
-                ctx.lineTo(
-                    x,
-                    y
-                );
-
-            }
-
-        }
-
-
-        ctx.stroke();
-
-
-        /* Center line */
-
-        ctx.beginPath();
-
-        ctx.strokeStyle =
-            "#cfc3b0";
-
-        ctx.lineWidth = 1;
-
-        ctx.setLineDash([
-            5,
-            5
-        ]);
-
-        ctx.moveTo(
-            0,
-            center
-        );
-
-        ctx.lineTo(
-            width,
-            center
-        );
-
-        ctx.stroke();
-
-        ctx.setLineDash([]);
-
-
-        /* Label */
-
-        ctx.fillStyle =
-            "#806957";
-
-        ctx.font =
-            "11px Arial";
-
-        ctx.fillText(
-            "SIMULATED PPG",
-            12,
-            20
-        );
-
-    }
-
-
-    /* =====================================================
-       PPG ANIMATION
-    ===================================================== */
-
-    function animatePPG() {
-
-        if (!state.ppgRunning) {
-
-            return;
-
-        }
-
-
-        state.ppgTime += 0.045;
-
-
-        drawPPG();
-
-
-        state.ppgAnimationId =
-            requestAnimationFrame(
-                animatePPG
-            );
-
-    }
-
-
-    /* =====================================================
-       START PPG
-    ===================================================== */
-
-    function startPPG() {
-
-        if (state.ppgRunning) {
-
-            return;
-
-        }
-
-
-        state.ppgRunning = true;
-
-
-        if (state.currentSection === "monitor") {
-
-            resizePPGCanvas();
-
-        }
-
-
-        animatePPG();
-
-
-        startMeasurementCounter();
-
-    }
-
-
-    /* =====================================================
-       PAUSE PPG
-    ===================================================== */
-
-    function pausePPG() {
-
-        state.ppgRunning = false;
-
-
-        if (
-            state.ppgAnimationId
-        ) {
-
-            cancelAnimationFrame(
-                state.ppgAnimationId
-            );
-
-            state.ppgAnimationId =
-                null;
-
-        }
-
-
-        stopMeasurementCounter();
-
-    }
-
-
-    /* =====================================================
-       RESET PPG
-    ===================================================== */
-
-    function resetPPG() {
-
-        pausePPG();
-
-
-        state.packetCount = 0;
-
-        state.ppgTime = 0;
-
+        state.lastResult = null;
 
         setText(
-            "packetCount",
-            "0"
+            "resultTitle",
+            "AWAITING ANALYSIS"
         );
 
+        setText(
+            "resultDescription",
+            "Upload and analyze a fundus image to generate a model result."
+        );
 
-        const progress =
-            document.getElementById(
-                "measurementProgress"
-            );
+        setText(
+            "resultClass",
+            "—"
+        );
 
+        setText(
+            "resultConfidence",
+            "—"
+        );
 
-        if (progress) {
+        setText(
+            "resultClassIndex",
+            "—"
+        );
 
-            progress.style.width =
-                "0%";
+        setText(
+            "gonPositiveProbability",
+            "—"
+        );
 
-        }
+        setText(
+            "gonNegativeProbability",
+            "—"
+        );
 
-
-        drawPPG();
-
+        setText(
+            "resultNote",
+            "Research-model output will appear here after analysis."
+        );
     }
 
 
     /* =====================================================
-       MEASUREMENT COUNTER
+       FILE SELECTION
     ===================================================== */
 
-    function startMeasurementCounter() {
+    if (fundusInput) {
 
-        stopMeasurementCounter();
+        fundusInput.addEventListener(
+            "change",
+            event => {
 
+                const files =
+                    event.target.files;
 
-        state.measurementTimer =
-            setInterval(
-                () => {
+                if (
+                    !files ||
+                    files.length === 0
+                ) {
 
-                    state.packetCount += 1;
+                    state.selectedFile =
+                        null;
 
-
-                    setText(
-                        "packetCount",
-                        state.packetCount
-                    );
-
-
-                    const progress =
-                        Math.min(
-                            state.packetCount %
-                            101,
-                            100
-                        );
-
-
-                    const progressElement =
-                        document.getElementById(
-                            "measurementProgress"
-                        );
-
-
-                    if (progressElement) {
-
-                        progressElement.style.width =
-                            progress + "%";
-
+                    if (selectedFileName) {
+                        selectedFileName.textContent =
+                            "No image selected.";
                     }
 
+                    clearPreview();
+                    resetResult();
 
-                    /* Slight natural variation */
+                    setButtonState(
+                        analyzeButton,
+                        true,
+                        "🔍 ANALYZE FUNDUS IMAGE"
+                    );
 
-                    state.hr =
-                        patientData[
-                            state.patientType
-                        ].hr +
-                        Math.sin(
-                            state.packetCount *
-                            0.15
-                        ) *
-                        2;
+                    if (analysisStatus) {
+                        analysisStatus.textContent =
+                            "Waiting for an image.";
+                    }
 
+                    return;
+                }
 
-                    updateLiveValues();
+                const file = files[0];
 
-                },
-                500
-            );
+                if (
+                    !file.type ||
+                    !file.type.startsWith(
+                        "image/"
+                    )
+                ) {
 
-    }
+                    state.selectedFile =
+                        null;
 
+                    if (selectedFileName) {
+                        selectedFileName.textContent =
+                            "Please select a valid image file.";
+                    }
 
-    /* =====================================================
-       STOP MEASUREMENT COUNTER
-    ===================================================== */
+                    clearPreview();
+                    resetResult();
 
-    function stopMeasurementCounter() {
+                    setButtonState(
+                        analyzeButton,
+                        true,
+                        "🔍 ANALYZE FUNDUS IMAGE"
+                    );
 
-        if (
-            state.measurementTimer
-        ) {
+                    if (analysisStatus) {
+                        analysisStatus.textContent =
+                            "Invalid file type.";
+                    }
 
-            clearInterval(
-                state.measurementTimer
-            );
+                    return;
+                }
 
-            state.measurementTimer =
-                null;
+                state.selectedFile =
+                    file;
 
-        }
+                if (selectedFileName) {
+                    selectedFileName.textContent =
+                        `${file.name} • ${formatBytes(file.size)}`;
+                }
 
-    }
+                showPreview(file);
+                resetResult();
 
-
-    /* =====================================================
-       MONITOR BUTTONS
-    ===================================================== */
-
-    const startPPGButton =
-        document.getElementById(
-            "startPPGButton"
-        );
-
-
-    const pausePPGButton =
-        document.getElementById(
-            "pausePPGButton"
-        );
-
-
-    const resetPPGButton =
-        document.getElementById(
-            "resetPPGButton"
-        );
-
-
-    if (startPPGButton) {
-
-        startPPGButton.addEventListener(
-            "click",
-            startPPG
-        );
-
-    }
-
-
-    if (pausePPGButton) {
-
-        pausePPGButton.addEventListener(
-            "click",
-            pausePPG
-        );
-
-    }
-
-
-    if (resetPPGButton) {
-
-        resetPPGButton.addEventListener(
-            "click",
-            resetPPG
-        );
-
-    }
-
-
-    /* =====================================================
-       SIGNAL PROCESSING
-    ===================================================== */
-
-    const processSignalButton =
-        document.getElementById(
-            "processSignalButton"
-        );
-
-
-    const processingStages =
-        document.querySelectorAll(
-            ".processing-stage"
-        );
-
-
-    async function processSignal() {
-
-        if (state.processingRunning) {
-
-            return;
-
-        }
-
-
-        state.processingRunning = true;
-
-
-        processSignalButton.disabled =
-            true;
-
-        processSignalButton.textContent =
-            "⚙ Processing...";
-
-
-        /* Reset stages */
-
-        processingStages.forEach(
-            stage => {
-
-                stage.classList.remove(
-                    "active"
+                setButtonState(
+                    analyzeButton,
+                    false,
+                    "🔍 ANALYZE FUNDUS IMAGE"
                 );
 
+                if (analysisStatus) {
+                    analysisStatus.textContent =
+                        "Image ready for analysis.";
+                }
             }
         );
+    }
 
 
-        /* Activate stages one by one */
+    /* =====================================================
+       FILE SIZE FORMAT
+    ===================================================== */
 
-        for (
-            let i = 0;
-            i < processingStages.length;
-            i++
-        ) {
+    function formatBytes(bytes) {
 
-            await wait(650);
-
-
-            processingStages[
-                i
-            ].classList.add(
-                "active"
-            );
-
+        if (!Number.isFinite(bytes)) {
+            return "Unknown size";
         }
 
+        if (bytes < 1024) {
+            return `${bytes} B`;
+        }
 
-        processSignalButton.textContent =
-            "✓ Processing Complete";
+        if (bytes < 1024 * 1024) {
+            return `${(
+                bytes / 1024
+            ).toFixed(1)} KB`;
+        }
 
-
-        state.processingRunning =
-            false;
-
-
-        setTimeout(
-            () => {
-
-                processSignalButton.disabled =
-                    false;
-
-                processSignalButton.textContent =
-                    "⚙ Process Signal";
-
-            },
-            1500
-        );
-
-    }
-
-
-    if (processSignalButton) {
-
-        processSignalButton.addEventListener(
-            "click",
-            processSignal
-        );
-
+        return `${(
+            bytes /
+            (1024 * 1024)
+        ).toFixed(2)} MB`;
     }
 
 
     /* =====================================================
-       WAIT HELPER
+       RESULT RENDERING
     ===================================================== */
 
-    function wait(milliseconds) {
+    function renderResult(result) {
 
-        return new Promise(
-            resolve =>
-                setTimeout(
-                    resolve,
-                    milliseconds
-                )
+        state.lastResult =
+            result;
+
+        const prediction =
+            result.prediction;
+
+        const confidence =
+            Number(result.confidence);
+
+        const classIndex =
+            result.class_index;
+
+        const probabilities =
+            result.probabilities || {};
+
+        const gonPositive =
+            Number(
+                probabilities["GON+"] ?? 0
+            );
+
+        const gonNegative =
+            Number(
+                probabilities["GON-"] ?? 0
+            );
+
+        setText(
+            "resultTitle",
+            prediction
         );
 
+        setText(
+            "resultDescription",
+            prediction === "GON+"
+                ? "The research model classified the uploaded image as GON+."
+                : "The research model classified the uploaded image as GON-."
+        );
+
+        setText(
+            "resultClass",
+            prediction
+        );
+
+        setText(
+            "resultConfidence",
+            Number.isFinite(confidence)
+                ? `${(
+                    confidence * 100
+                ).toFixed(2)}%`
+                : "—"
+        );
+
+        setText(
+            "resultClassIndex",
+            classIndex ?? "—"
+        );
+
+        setText(
+            "gonPositiveProbability",
+            `${(
+                gonPositive * 100
+            ).toFixed(2)}%`
+        );
+
+        setText(
+            "gonNegativeProbability",
+            `${(
+                gonNegative * 100
+            ).toFixed(2)}%`
+        );
+
+        setText(
+            "resultNote",
+            result.note ||
+            "Research-model output only."
+        );
+
+        navigateTo("result");
     }
 
 
     /* =====================================================
-       WHAT-IF CONTROLS
+       API ERROR MESSAGE
     ===================================================== */
 
-    const whatIfSBP =
-        document.getElementById(
-            "whatIfSBP"
-        );
+    async function extractApiError(
+        response
+    ) {
 
+        try {
 
-    const whatIfDBP =
-        document.getElementById(
-            "whatIfDBP"
-        );
+            const body =
+                await response.json();
 
+            if (
+                body &&
+                typeof body.detail ===
+                "string"
+            ) {
+                return body.detail;
+            }
 
-    const whatIfIOP =
-        document.getElementById(
-            "whatIfIOP"
-        );
+            if (
+                body &&
+                typeof body.detail !==
+                "undefined"
+            ) {
+                return JSON.stringify(
+                    body.detail
+                );
+            }
 
-
-    function updateWhatIf() {
-
-        const sbp =
-            Number(
-                whatIfSBP.value
+            return JSON.stringify(
+                body
             );
 
+        } catch {
 
-        const dbp =
-            Number(
-                whatIfDBP.value
+            return (
+                `Request failed with status ` +
+                `${response.status}.`
             );
-
-
-        const iop =
-            Number(
-                whatIfIOP.value
-            );
-
-
-        const map =
-            calculateMAP(
-                sbp,
-                dbp
-            );
-
-
-        const mopp =
-            calculateMOPP(
-                sbp,
-                dbp,
-                iop
-            );
-
-
-        const dopp =
-            calculateDOPP(
-                dbp,
-                iop
-            );
-
-
-        setText(
-            "whatIfSBPValue",
-            sbp + " mmHg"
-        );
-
-
-        setText(
-            "whatIfDBPValue",
-            dbp + " mmHg"
-        );
-
-
-        setText(
-            "whatIfIOPValue",
-            iop.toFixed(1) +
-            " mmHg"
-        );
-
-
-        setText(
-            "whatIfMAP",
-            map.toFixed(1)
-        );
-
-
-        setText(
-            "whatIfMOPP",
-            mopp.toFixed(1)
-        );
-
-
-        setText(
-            "whatIfDOPP",
-            dopp.toFixed(1)
-        );
-
-
-        const risk =
-            calculateDemoRisk(
-                sbp,
-                dbp,
-                iop
-            );
-
-
-        updateRiskGauge(
-            risk
-        );
-
-    }
-
-
-    if (whatIfSBP) {
-
-        whatIfSBP.addEventListener(
-            "input",
-            updateWhatIf
-        );
-
-    }
-
-
-    if (whatIfDBP) {
-
-        whatIfDBP.addEventListener(
-            "input",
-            updateWhatIf
-        );
-
-    }
-
-
-    if (whatIfIOP) {
-
-        whatIfIOP.addEventListener(
-            "input",
-            updateWhatIf
-        );
-
+        }
     }
 
 
     /* =====================================================
-       WHAT-IF FROM PATIENT
+       API PREDICTION
     ===================================================== */
 
-    function updateWhatIfFromPatient() {
+    async function analyzeFundus() {
 
-        if (!whatIfSBP) {
+        if (!state.selectedFile) {
+
+            if (analysisStatus) {
+                analysisStatus.textContent =
+                    "Please select an image first.";
+            }
 
             return;
-
         }
 
-
-        whatIfSBP.value =
-            state.sbp;
-
-        whatIfDBP.value =
-            state.dbp;
-
-        whatIfIOP.value =
-            state.iop;
-
-
-        updateWhatIf();
-
-    }
-
-
-    /* =====================================================
-       DEMONSTRATION HEURISTIC
-       NOT A CLINICAL MODEL
-    ===================================================== */
-
-    function calculateDemoRisk(
-        sbp,
-        dbp,
-        iop
-    ) {
-
-        let score = 0;
-
-
-        /* BP contribution */
-
-        if (sbp >= 140) {
-
-            score += 0.30;
-
-        } else if (sbp >= 130) {
-
-            score += 0.15;
-
+        if (state.analyzing) {
+            return;
         }
 
+        state.analyzing = true;
 
-        if (dbp >= 90) {
-
-            score += 0.25;
-
-        } else if (dbp >= 80) {
-
-            score += 0.12;
-
-        }
-
-
-        /* IOP contribution */
-
-        if (iop >= 21) {
-
-            score += 0.30;
-
-        } else if (iop >= 18) {
-
-            score += 0.15;
-
-        }
-
-
-        return Math.min(
-            score,
-            1
+        setButtonState(
+            analyzeButton,
+            true,
+            "⏳ ANALYZING..."
         );
 
-    }
+        if (analysisStatus) {
+            analysisStatus.textContent =
+                "Sending image to the GLAUCO-SENSE research model...";
+        }
 
+        try {
 
-    /* =====================================================
-       RISK GAUGE
-    ===================================================== */
+            const formData =
+                new FormData();
 
-    function updateRiskGauge(
-        risk
-    ) {
-
-        const gauge =
-            document.getElementById(
-                "riskGauge"
+            formData.append(
+                "file",
+                state.selectedFile
             );
 
+            const response =
+                await fetch(
+                    PREDICT_ENDPOINT,
+                    {
+                        method: "POST",
+                        body: formData,
+                    }
+                );
 
-        if (gauge) {
+            if (!response.ok) {
 
-            gauge.style.width =
-                (risk * 100) + "%";
+                const message =
+                    await extractApiError(
+                        response
+                    );
 
-
-            if (risk < 0.35) {
-
-                gauge.style.background =
-                    "var(--green-600)";
-
-            } else if (risk < 0.65) {
-
-                gauge.style.background =
-                    "#a38a48";
-
-            } else {
-
-                gauge.style.background =
-                    "#9a5a4d";
-
+                throw new Error(
+                    message
+                );
             }
 
-        }
+            const result =
+                await response.json();
 
+            renderResult(result);
 
-        setText(
-            "whatIfRisk",
-            risk.toFixed(2)
-        );
+            if (analysisStatus) {
+                analysisStatus.textContent =
+                    "Analysis completed successfully.";
+            }
 
-    }
+        } catch (error) {
 
-
-    /* =====================================================
-       SCREENING RESULT
-    ===================================================== */
-
-    function updateResult() {
-
-        const risk =
-            calculateDemoRisk(
-                state.sbp,
-                state.dbp,
-                state.iop
+            console.error(
+                "GLAUCO-SENSE prediction failed:",
+                error
             );
 
-
-        const title =
-            document.getElementById(
-                "resultTitle"
-            );
-
-
-        const description =
-            document.getElementById(
-                "resultDescription"
-            );
-
-
-        if (risk >= 0.5) {
+            resetResult();
 
             setText(
                 "resultTitle",
-                "ELEVATED SCREENING CONCERN"
+                "ANALYSIS FAILED"
             );
-
 
             setText(
                 "resultDescription",
-                "The synthetic profile produces an elevated pattern in this demonstration. This is not a diagnosis."
+                error?.message ||
+                "Unable to connect to the research model."
             );
-
-
-            if (title) {
-
-                title.classList.remove(
-                    "green-text"
-                );
-
-                title.classList.add(
-                    "yellow-text"
-                );
-
-            }
-
-        } else {
 
             setText(
-                "resultTitle",
-                "LOWER SCREENING CONCERN"
+                "resultNote",
+                "Check that the FastAPI backend is running on port 8000."
             );
 
+            navigateTo("result");
 
-            setText(
-                "resultDescription",
-                "The current synthetic reference profile does not produce an elevated concern in this demonstration."
-            );
-
-
-            if (title) {
-
-                title.classList.remove(
-                    "yellow-text"
-                );
-
-                title.classList.add(
-                    "green-text"
-                );
-
+            if (analysisStatus) {
+                analysisStatus.textContent =
+                    "Analysis failed.";
             }
 
+        } finally {
+
+            state.analyzing = false;
+
+            setButtonState(
+                analyzeButton,
+                !state.selectedFile,
+                "🔍 ANALYZE FUNDUS IMAGE"
+            );
         }
-
-
-        setText(
-            "resultBP",
-            risk >= 0.5
-                ? "Elevated pattern"
-                : "Reference"
-        );
-
-
-        setText(
-            "resultIOP",
-            state.iop.toFixed(1)
-        );
-
-
-        setText(
-            "resultScore",
-            risk.toFixed(2)
-        );
-
     }
 
 
-    /* =====================================================
-       MODEL SELECTOR
-    ===================================================== */
+    if (analyzeButton) {
 
-    const modelSelect =
-        document.getElementById(
-            "modelSelect"
-        );
-
-
-    if (modelSelect) {
-
-        modelSelect.addEventListener(
-            "change",
-            () => {
-
-                console.log(
-                    "Selected research model:",
-                    modelSelect.value
-                );
-
-            }
-        );
-
-    }
-
-
-    /* =====================================================
-       COMPLETE DEMO
-    ===================================================== */
-
-    const demoSequence = [
-
-        "overview",
-
-        "patient",
-
-        "iot",
-
-        "monitor",
-
-        "signal",
-
-        "clinical",
-
-        "features",
-
-        "model",
-
-        "result",
-
-        "whatif",
-
-        "architecture",
-
-        "hardware",
-
-        "research"
-
-    ];
-
-
-    async function runCompleteDemo() {
-
-        if (state.demoRunning) {
-
-            return;
-
-        }
-
-
-        state.demoRunning = true;
-
-
-        runDemoButton.disabled =
-            true;
-
-        runDemoButton.textContent =
-            "⏳ DEMO RUNNING";
-
-
-        /* Start with reference patient */
-
-        const referenceButton =
-            document.querySelector(
-                '[data-patient="reference"]'
-            );
-
-
-        if (referenceButton) {
-
-            referenceButton.click();
-
-        }
-
-
-        for (
-            let i = 0;
-            i < demoSequence.length;
-            i++
-        ) {
-
-            const section =
-                demoSequence[i];
-
-
-            navigateTo(section);
-
-
-            /* Run special actions */
-
-            if (
-                section === "monitor"
-            ) {
-
-                startPPG();
-
-                await wait(2500);
-
-                pausePPG();
-
-            }
-
-
-            if (
-                section === "signal"
-            ) {
-
-                await processSignal();
-
-            }
-
-
-            if (
-                section === "whatif"
-            ) {
-
-                await wait(1200);
-
-            }
-
-
-            await wait(900);
-
-        }
-
-
-        navigateTo("overview");
-
-
-        runDemoButton.disabled =
-            false;
-
-        runDemoButton.textContent =
-            "▶ RUN COMPLETE DEMO";
-
-
-        state.demoRunning =
-            false;
-
-    }
-
-
-    if (runDemoButton) {
-
-        runDemoButton.addEventListener(
+        analyzeButton.addEventListener(
             "click",
-            runCompleteDemo
+            analyzeFundus
         );
 
+    }
+
+
+    /* =====================================================
+       API HEALTH CHECK
+    ===================================================== */
+
+    async function checkBackendHealth() {
+
+        try {
+
+            const response =
+                await fetch(
+                    `${API_BASE_URL}/health`,
+                    {
+                        method: "GET",
+                    }
+                );
+
+            if (!response.ok) {
+                throw new Error(
+                    "Backend health check failed."
+                );
+            }
+
+            const data =
+                await response.json();
+
+            console.log(
+                "GLAUCO-SENSE backend:",
+                data
+            );
+
+        } catch (error) {
+
+            console.warn(
+                "Backend is not currently reachable:",
+                error.message
+            );
+
+        }
     }
 
 
@@ -1934,41 +796,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function initializeApp() {
 
-        /* Load default patient */
-
-        loadPatient(
-            "reference"
-        );
-
-
-        /* Draw initial PPG */
-
-        setTimeout(
-            () => {
-
-                resizePPGCanvas();
-
-            },
-            100
-        );
-
-
-        /* Initialize What-If */
-
-        updateWhatIf();
-
-
-        /* Initialize result */
-
-        updateResult();
-
-
-        /* Start on overview */
-
         navigateTo(
             "overview"
         );
 
+        resetResult();
+
+        if (analysisStatus) {
+            analysisStatus.textContent =
+                "Waiting for an image.";
+        }
+
+        checkBackendHealth();
     }
 
 
@@ -1983,16 +822,13 @@ document.addEventListener("DOMContentLoaded", () => {
         "beforeunload",
         () => {
 
-            pausePPG();
+            if (state.previewUrl) {
 
-            stopMeasurementCounter();
-
-            if (state.demoTimer) {
-
-                clearTimeout(
-                    state.demoTimer
+                URL.revokeObjectURL(
+                    state.previewUrl
                 );
 
+                state.previewUrl = null;
             }
 
         }
