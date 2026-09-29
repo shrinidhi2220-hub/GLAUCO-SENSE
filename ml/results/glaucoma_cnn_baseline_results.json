@@ -1,0 +1,33 @@
+{
+    "dataset": "HYGD",
+    "training_images": 615,
+    "testing_images": 132,
+    "training_patients": 230,
+    "testing_patients": 58,
+    "test_accuracy": 0.9318,
+    "test_loss": 0.19195,
+    "confusion_matrix": [
+        [
+            33,
+            0
+        ],
+        [
+            9,
+            90
+        ]
+    ],
+    "classification_report": {
+        "GON-": {
+            "precision": 0.79,
+            "recall": 1.0,
+            "f1_score": 0.88,
+            "support": 33
+        },
+        "GON+": {
+            "precision": 1.0,
+            "recall": 0.91,
+            "f1_score": 0.95,
+            "support": 99
+        }
+    }
+}
